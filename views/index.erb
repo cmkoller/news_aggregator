@@ -9,12 +9,12 @@
     <a href="/articles/new">Add New Article</a>
 
     <ul>
-      <% articles.each do |title, info| %>
+      <% articles.each do |article_info| %>
         <li>
           <h4>
-            <a href="<%= info[:url] %>" target="_blank"><%= title %></a>
+            <a href="<%= article_info["url"] %>" target="_blank"><%= article_info["title"] %></a>
           </h4>
-          <p><%= info[:description] %></p>
+          <p><%= article_info["description"] %></p>
         </li>
       <% end %>
     </ul>

@@ -1,13 +1,21 @@
 require "sinatra"
 require "csv"
 require "pry"
+require "pg"
+
+def db_connection
+  begin
+    connection = PG.connect(dbname: "news_aggregator_development")
+    yield(connection)
+  ensure
+    connection.close
+  end
+end
 
 def articles
-  articles = {}
-  CSV.foreach("articles.csv", headers: true) do |row|
-    articles[row[0]] = { url: row[1], description: row[2] }
+  db_connection do |conn|
+    conn.exec("SELECT * FROM articles;")
   end
-  articles
 end
 
 get "/" do
@@ -27,8 +35,9 @@ post "/articles" do
   url = params[:url]
   description = params[:description]
 
-  File.open("articles.csv", "a") do |f|
-    f.puts("#{title}, #{url}, #{description}")
+  db_connection do |conn|
+    conn.exec_params("INSERT INTO articles (title, url, description)
+      VALUES ($1, $2, $3)", [title, url, description])
   end
 
   redirect "/articles"
